@@ -20,9 +20,13 @@
     
     retrieveObjects = (objects) => {
         this.setState({retrievedObjects:[] });
-        var unfilteredObjects = objects.near_earth_objects        
+        // get all near earth objects from json
+        var unfilteredObjects = objects.near_earth_objects   
+        // get all dated objects     
         for (var date in unfilteredObjects){
+            // dated objects is an array, get all objects from within array
             for (var object in unfilteredObjects[date]){
+                // hazardous objects only
                 if (this.state.hazard === "Yes") {
                     if (unfilteredObjects[date][object].is_potentially_hazardous_asteroid && unfilteredObjects[date][object].close_approach_data[0].relative_velocity.miles_per_hour > this.state.speed) {
                         let approachDate = date;
@@ -34,6 +38,7 @@
                         console.log("new retrievedObjects array:")
                         console.log(this.state.retrievedObjects);
                     }
+                // non hazardous objects
                 } else if (this.state.hazard === "No"){
                     if (unfilteredObjects[date][object].close_approach_data[0].relative_velocity.miles_per_hour > this.state.speed) {
                         let approachDate = date;
