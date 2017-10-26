@@ -2,7 +2,7 @@
     constructor(props) {
         super(props)
         this.state = {
-            speed: "30000",
+            speed: "0",
             hazard: "No",
             retrievedObjects: [],
         }
@@ -38,16 +38,21 @@
                         console.log("new retrievedObjects array:")
                         console.log(this.state.retrievedObjects);
                     }
-                // non hazardous objects
-                } else if (this.state.hazard === "No"){
+                // both non hazardous and hazardous objects
+                } else {
                     if (unfilteredObjects[date][object].close_approach_data[0].relative_velocity.miles_per_hour > this.state.speed) {
                         let approachDate = date;
-                        let hazardous = this.state.hazard;
+                        // check if hazardous
+                        var hazardous = "";
+                        if (!unfilteredObjects[date][object].is_potentially_hazardous_asteroid){
+                            hazardous = "No";                            
+                        } else if (unfilteredObjects[date][object].is_potentially_hazardous_asteroid){
+                            hazardous = "Yes";
+                        }
                         let speed = unfilteredObjects[date][object].close_approach_data[0].relative_velocity.miles_per_hour;
                         let diameter = unfilteredObjects[date][object].estimated_diameter.feet.estimated_diameter_max;
     
                         this.setState({retrievedObjects: this.state.retrievedObjects.concat({approachDate, hazardous, speed, diameter})})                        
-                        // this.state.retrievedObjects.push({approachDate, hazardous, speed, diameter})
                         console.log("new retrievedObjects array:")
                         console.log(this.state.retrievedObjects);
                     }
@@ -90,7 +95,6 @@
                 <ObjectCountLabel objectCount={this.state.retrievedObjects.length}/>
                 <div className="row">
                     <div className="col-sm-12 mt-3">
-                        {/* <h3 className="text-secondary mb-3"><span>87</span> objects found.</h3> */}
                         <table className="table table-responsive table-striped">
                             <thead className="thead-inverse">
                                 <tr>
@@ -100,7 +104,7 @@
                                     <th>Max. Diameter (feet)</th>
                                 </tr>
                             </thead>
-                            <ObjectTable objects={this.state.retrievedObjects} />
+                            <ObjectTable objects={this.state.retrievedObjects} hazardBox={this.state.hazard} />
                         </table>
                     </div>
                 </div>
@@ -138,21 +142,41 @@ class ObjectCountLabel extends React.Component {
 class ObjectTable extends React.Component {
     constructor(props) {
         super(props)
-
+        this.state = {
+            hazardClassName: "",
+        }
     }
 
     render() {
+        if (this.props.hazardBox === "No"){
+            this.state.hazardClassName = "hazardous-row";
+        } else {
+            this.state.hazardClassName = "";
+        }
+
         return (
             <tbody>
             {this.props.objects.map(object => {
-                return (
-                    <tr>
-                    <td>{object.approachDate}</td>
-                    <td>{object.hazardous}</td>
-                    <td>{object.speed}</td>
-                    <td>{object.diameter}</td>
+                if (object.hazardous === "Yes") {
+                    return (
+                    <tr className={this.state.hazardClassName}>
+                        <td>{object.approachDate}</td>
+                        <td>{object.hazardous}</td>
+                        <td>{object.speed}</td>
+                        <td>{object.diameter}</td>
                     </tr>
                 )
+                } else {
+                    return (
+                    <tr>
+                        <td>{object.approachDate}</td>
+                        <td>{object.hazardous}</td>
+                        <td>{object.speed}</td>
+                        <td>{object.diameter}</td>
+                    </tr>
+                )
+                }
+
             })}
             </tbody>
         )
