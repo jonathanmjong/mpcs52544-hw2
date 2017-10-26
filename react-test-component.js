@@ -2,10 +2,11 @@
     constructor(props) {
         super(props)
         this.state = {
-            speed: "",
+            speed: "30000",
             hazard: "No",
             retrievedObjects: [],
         }
+        this.updateObjectsUrl();
     }
 
     updateObjectsUrl = (event) => {
@@ -18,7 +19,7 @@
     parseResponse = (response) => { return response.json(); }    
     
     retrieveObjects = (objects) => {
-        // this.setState({retrievedObjects:[] });
+        this.setState({retrievedObjects:[] });
         var unfilteredObjects = objects.near_earth_objects        
         for (var date in unfilteredObjects){
             for (var object in unfilteredObjects[date]){
@@ -67,15 +68,24 @@
 
     render() {
         return (
-            <div className="row">
-                <input class="form-check-input" type="checkbox" name="hazard" value="on" onChange={this.handleCheckboxChange}/>
-                <div class="row"><input step="1000" type="range" value={this.state.speed} min="0" max="60000" onChange={this.handleSliderChange} />
+            <div className="container">
+                <div className="row">
+                    <span>Hazardous Objects Only</span>
+                    <input class="form-check-input" type="checkbox" name="hazard" value="on" onChange={this.handleCheckboxChange}/>
                 </div>
+
+                <hr></hr>
+
+                <div class="row"><input step="1000" type="range" value={this.state.speed} min="0" max="60000" onChange={this.handleSliderChange} />
+                </div> 
                 <SpeedLabel speed={this.state.speed}/>
 
+                <hr></hr>
+                
+                <ObjectCountLabel objectCount={this.state.retrievedObjects.length}/>
                 <div className="row">
                     <div className="col-sm-12 mt-3">
-                        <h3 className="text-secondary mb-3"><span>87</span> objects found.</h3>
+                        {/* <h3 className="text-secondary mb-3"><span>87</span> objects found.</h3> */}
                         <table className="table table-responsive table-striped">
                             <thead className="thead-inverse">
                                 <tr>
@@ -89,6 +99,7 @@
                         </table>
                     </div>
                 </div>
+
             </div>   
         )
       }
@@ -107,6 +118,18 @@ class SpeedLabel extends React.Component {
       }
 }
 
+class ObjectCountLabel extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return (
+            <h3 className="text-secondary mb-3">{this.props.objectCount} Objects Found
+            </h3>
+        )
+      }
+}
 class ObjectTable extends React.Component {
     constructor(props) {
         super(props)
@@ -116,12 +139,6 @@ class ObjectTable extends React.Component {
     render() {
         return (
             <tbody>
-            <tr>
-            <td>2017-10-20</td>
-            <td>No</td>
-            <td>15,267</td>
-            <td>250</td>
-            </tr>
             {this.props.objects.map(object => {
                 return (
                     <tr>
