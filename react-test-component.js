@@ -14,17 +14,19 @@
     
         let nasa_search_url = 'https://api.nasa.gov/neo/rest/v1/feed?start_date=2017-10-25&api_key=' + key 
         fetch(nasa_search_url)
-        .then(function (request) {
-            if(!request.ok){
-                throw Error();
-            }
-            return request;
-        })
+        .then(this.detectError)
         .then(this.parseResponse)
         .then(this.retrieveObjects)
         .catch(function () {
             console.log("There was a problem with the request");
         });
+    }
+
+    detectError = (request) => {
+        if(!request.ok){
+            throw Error();
+        }
+        return request;
     }
 
     parseResponse = (response) => { return response.json(); }    
